@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atlantic Aircraft — Aircraft Valuation Model</title>
+  <meta name="description" content="Professional aircraft valuation tool for light aircraft — condition scoring, comparable sales data, and market analysis.">
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+/* ==============================
+   Atlantic Aircraft — Valuation Model
+   Art direction: Aviation — deep navy, steel blue accent, professional & authoritative
+   ============================== */
+
+/* === Design Tokens === */
+:root, [data-theme="light"] {
+  --color-bg:          #f4f5f7;
+  --color-surface:     #ffffff;
+  --color-surface-2:   #f9fafb;
+  --color-border:      #dde1e7;
+  --color-divider:     #e8ebf0;
+
+  --color-text:        #1a1f2e;
+  --color-text-muted:  #6b7280;
+  --color-text-faint:  #9ca3af;
+
+  --color-primary:     #1e3a5f;
+  --color-primary-light: #2d5a8e;
+  --color-primary-hover: #162d4a;
+  --color-accent:      #3b82c4;
+  --color-accent-light: #dbeafe;
+
+  --color-success:     #16a34a;
+  --color-warning:     #d97706;
+  --color-error:       #dc2626;
+
+  --color-star:        #d97706;
+  --color-star-empty:  #dde1e7;
+
+  --font-body: 'General Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.8125rem);
+  --text-sm:   clamp(0.8125rem, 0.78rem + 0.2vw, 0.875rem);
+  --text-base: clamp(0.9375rem, 0.9rem + 0.2vw, 1rem);
+  --text-lg:   clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);
+  --text-xl:   clamp(1.375rem,  1.2rem + 0.75vw, 1.75rem);
+  --text-2xl:  clamp(1.75rem,   1.5rem + 1vw, 2.25rem);
+
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  --shadow-sm: 0 1px 3px rgba(30,58,95,0.06);
+  --shadow-md: 0 4px 12px rgba(30,58,95,0.08);
+  --shadow-lg: 0 8px 24px rgba(30,58,95,0.1);
+
+  --transition: 200ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  --chart-1: #1e3a5f;
+  --chart-2: #3b82c4;
+  --chart-3: #6ba3d6;
+  --chart-4: #94c5e8;
+  --chart-5: #c0ddf3;
+  --chart-6: #d97706;
+  --chart-7: #16a34a;
+}
+
+[data-theme="dark"] {
+  --color-bg:          #0f1219;
+  --color-surface:     #1a1f2e;
+  --color-surface-2:   #222838;
+  --color-border:      #2d3548;
+  --color-divider:     #262d3e;
+
+  --color-text:        #e2e5eb;
+  --color-text-muted:  #8b93a5;
+  --color-text-faint:  #5c6478;
+
+  --color-primary:     #6ba3d6;
+  --color-primary-light: #3b82c4;
+  --color-primary-hover: #8bbde6;
+  --color-accent:      #6ba3d6;
+  --color-accent-light: #1e2d42;
+
+  --color-success:     #4ade80;
+  --color-warning:     #fbbf24;
+  --color-error:       #f87171;
+
+  --color-star:        #fbbf24;
+  --color-star-empty:  #2d3548;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+
+  --chart-1: #6ba3d6;
+  --chart-2: #3b82c4;
+  --chart-3: #94c5e8;
+  --chart-4: #c0ddf3;
+  --chart-5: #1e3a5f;
+  --chart-6: #fbbf24;
+  --chart-7: #4ade80;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-bg:#0f1219;--color-surface:#1a1f2e;--color-surface-2:#222838;--color-border:#2d3548;--color-divider:#262d3e;
+    --color-text:#e2e5eb;--color-text-muted:#8b93a5;--color-text-faint:#5c6478;
+    --color-primary:#6ba3d6;--color-primary-light:#3b82c4;--color-primary-hover:#8bbde6;--color-accent:#6ba3d6;--color-accent-light:#1e2d42;
+    --color-success:#4ade80;--color-warning:#fbbf24;--color-error:#f87171;
+    --color-star:#fbbf24;--color-star-empty:#2d3548;
+    --shadow-sm:0 1px 3px rgba(0,0,0,0.3);--shadow-md:0 4px 12px rgba(0,0,0,0.4);--shadow-lg:0 8px 24px rgba(0,0,0,0.5);
+    --chart-1:#6ba3d6;--chart-2:#3b82c4;--chart-3:#94c5e8;--chart-4:#c0ddf3;--chart-5:#1e3a5f;--chart-6:#fbbf24;--chart-7:#4ade80;
+  }
+}
+
+/* === Reset & Base === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100dvh;
+  line-height: 1.6;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+h1,h2,h3,h4 { text-wrap: balance; line-height: 1.2; }
+p { text-wrap: pretty; }
+button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
+input, select { font: inherit; color: inherit; }
+
+a, button, input, select {
+  transition: color var(--transition), background var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+::selection {
+  background: rgba(59,130,196,0.2);
+  color: var(--color-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* === Header === */
+.header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.logo-icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.logo-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+.logo-subtitle {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* === Buttons === */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #ffffff;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.btn-outline {
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+  background: transparent;
+}
+
+.btn-outline:hover {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+
+.theme-toggle:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+/* === Main Layout === */
+.main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* === Section Labels === */
+.section-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+/* === Cards === */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+}
+
+/* === Form Controls === */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+}
+
+@media (max-width: 640px) {
+  .form-grid { grid-template-columns: 1fr; }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.form-input, .form-select {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(59,130,196,0.15);
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+[data-theme="dark"] .form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b93a5' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* === Slider (matching calculator) === */
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.slider-value {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--color-divider);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  transition: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 3px solid var(--color-surface);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  cursor: grab;
+  transition: transform 0.15s ease;
+}
+
+.slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 3px solid var(--color-surface);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  cursor: grab;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* === Condition Scoring === */
+.scoring-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.scoring-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.scoring-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.scoring-desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.star-rating {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.star-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: transform 0.1s ease, color var(--transition);
+  color: var(--color-star-empty);
+  padding: 0;
+}
+
+.star-btn:hover {
+  transform: scale(1.15);
+}
+
+.star-btn.active {
+  color: var(--color-star);
+}
+
+.star-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Condition Score Card */
+.condition-score-display {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+.score-number {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+  min-width: 80px;
+  text-align: center;
+}
+
+.score-bar-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.score-bar-track {
+  height: 10px;
+  background: var(--color-divider);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.5s;
+}
+
+.score-label-text {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* === Comparable Sales Table === */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 calc(var(--space-6) * -1);
+  padding: 0 var(--space-6);
+}
+
+.comp-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  min-width: 800px;
+}
+
+.comp-table thead th {
+  text-align: left;
+  padding: var(--space-3) var(--space-3);
+  font-weight: 600;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid var(--color-primary);
+  white-space: nowrap;
+}
+
+.comp-table tbody td {
+  padding: var(--space-3) var(--space-3);
+  border-bottom: 1px solid var(--color-divider);
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.comp-table tbody tr:nth-child(even) {
+  background: var(--color-surface-2);
+}
+
+.comp-table tbody tr:hover {
+  background: var(--color-accent-light);
+}
+
+.comp-table .price-col {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.comp-table .notes-col {
+  white-space: normal;
+  min-width: 180px;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.no-data-msg {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-style: italic;
+}
+
+/* === Valuation Results === */
+.valuation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  .valuation-grid { grid-template-columns: 1fr; }
+}
+
+.val-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-divider);
+  font-size: var(--text-sm);
+}
+
+.val-line-label {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.val-line-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.val-line-value.positive { color: var(--color-success); }
+.val-line-value.negative { color: var(--color-error); }
+
+.val-range-display {
+  margin-top: var(--space-6);
+  padding: var(--space-6);
+  background: var(--color-primary);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .val-range-display {
+  background: #1e3a5f;
+}
+
+.val-range-title {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+  margin-bottom: var(--space-2);
+}
+
+.val-range-value {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--space-1);
+}
+
+.val-asking-price {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+.val-asking-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+  margin-bottom: var(--space-1);
+}
+
+.val-asking-value {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.val-note {
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* === Market Position Gauge === */
+.gauge-container {
+  margin-top: var(--space-5);
+}
+
+.gauge-track {
+  position: relative;
+  height: 12px;
+  background: var(--color-divider);
+  border-radius: 6px;
+  overflow: visible;
+  margin: var(--space-6) 0 var(--space-4);
+}
+
+.gauge-range {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: rgba(59,130,196,0.2);
+  border-radius: 6px;
+}
+
+.gauge-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 3px solid var(--color-surface);
+  box-shadow: var(--shadow-md);
+  z-index: 2;
+  transition: left 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gauge-comp-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.gauge-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* === Chart === */
+.chart-container {
+  position: relative;
+  height: 300px;
+  margin-top: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  .chart-container { height: 250px; }
+}
+
+/* === Valuation Summary (Print) === */
+.summary-card {
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  background: var(--color-surface);
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.summary-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.summary-logo-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+.summary-logo-sub {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.summary-date {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4) var(--space-8);
+  margin-bottom: var(--space-6);
+}
+
+@media (max-width: 640px) {
+  .summary-grid { grid-template-columns: 1fr; }
+}
+
+.summary-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summary-field-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.summary-field-value {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-valuation {
+  background: var(--color-primary);
+  color: #fff;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-4);
+  text-align: center;
+  margin-bottom: var(--space-4);
+}
+
+[data-theme="dark"] .summary-valuation {
+  background: #1e3a5f;
+}
+
+@media (max-width: 640px) {
+  .summary-valuation { grid-template-columns: 1fr; }
+}
+
+.summary-val-item {}
+
+.summary-val-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+.summary-val-value {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  margin-top: var(--space-1);
+}
+
+.summary-val-value.highlight {
+  font-size: var(--text-2xl);
+}
+
+.summary-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-divider);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.print-btn-container {
+  margin-top: var(--space-4);
+  display: flex;
+  justify-content: center;
+}
+
+/* === Footer === */
+.footer {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6) var(--space-6);
+  text-align: center;
+  border-top: 1px solid var(--color-divider);
+}
+
+.footer-brand {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: var(--space-1);
+}
+
+.footer-location {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.footer-disclaimer {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* === Divider === */
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-divider);
+  margin: var(--space-6) 0;
+}
+
+/* === Animations === */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.card:nth-child(1) { animation-delay: 0s; }
+.card:nth-child(2) { animation-delay: 0.05s; }
+.card:nth-child(3) { animation-delay: 0.1s; }
+.card:nth-child(4) { animation-delay: 0.15s; }
+.card:nth-child(5) { animation-delay: 0.2s; }
+.card:nth-child(6) { animation-delay: 0.25s; }
+
+/* === Other Type Manual Entry === */
+.manual-entry {
+  display: none;
+  margin-top: var(--space-2);
+}
+
+.manual-entry.visible {
+  display: block;
+}
+
+/* === Print Styles === */
+@media print {
+  body {
+    background: #fff !important;
+    color: #1a1f2e !important;
+    font-size: 11pt;
+  }
+
+  .header, .footer, .theme-toggle, .print-btn-container,
+  .no-print {
+    display: none !important;
+  }
+
+  .main {
+    padding: 0;
+    max-width: 100%;
+    gap: 1.5rem;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #dde1e7 !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    animation: none !important;
+  }
+
+  .summary-card {
+    border: 2px solid #1e3a5f !important;
+  }
+
+  .val-range-display, .summary-valuation {
+    background: #1e3a5f !important;
+    color: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .score-bar-fill {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .chart-container {
+    height: 250px;
+  }
+}
+
+/* === Mobile === */
+@media (max-width: 640px) {
+  .header-inner { padding: var(--space-3) var(--space-4); }
+  .main { padding: var(--space-4); gap: var(--space-6); }
+  .card { padding: var(--space-4); }
+  .summary-card { padding: var(--space-5); }
+
+  .scoring-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .star-rating {
+    justify-content: flex-start;
+  }
+
+  .condition-score-display {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .summary-header {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .summary-date { text-align: left; }
+
+  .summary-footer {
+    flex-direction: column;
+    gap: var(--space-2);
+    text-align: center;
+  }
+
+  .gauge-container { overflow-x: auto; }
+}
+  </style>
+</head>
+<body>
+  <!-- ==================== HEADER ==================== -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <svg class="logo-icon" width="36" height="36" viewBox="0 0 36 36" fill="none" aria-label="Atlantic Aircraft logo">
+          <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M18 6 L18 30" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10 16 L18 10 L26 16" stroke="currentColor" stroke-width="1.5" fill="none"/>
+          <path d="M8 20 L28 20" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M14 24 L22 24" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <div>
+          <h1 class="logo-title">Atlantic Aircraft</h1>
+          <p class="logo-subtitle">Aircraft Valuation Model</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="theme-toggle" data-theme-toggle aria-label="Switch to dark mode">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main class="main">
+
+    <!-- Section 1: Subject Aircraft Details -->
+    <section class="card" id="subjectSection">
+      <h2 class="section-label">Subject Aircraft</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="aircraftType">Aircraft Type</label>
+          <select id="aircraftType" class="form-select">
+            <option value="">— Select aircraft type —</option>
+            <option value="pa28-140">Piper PA-28-140 Cherokee</option>
+            <option value="pa28-161">Piper PA-28-161 Warrior II</option>
+            <option value="pa28-180">Piper PA-28-180 Cherokee</option>
+            <option value="pa28-181">Piper PA-28-181 Archer II</option>
+            <option value="c150">Cessna 150/152</option>
+            <option value="c172">Cessna 172 Skyhawk</option>
+            <option value="c182">Cessna 182 Skylane</option>
+            <option value="da40">Diamond DA40 Star</option>
+            <option value="other-grumman">Grumman AA-5 Traveler</option>
+            <option value="other-robin">Robin DR400</option>
+            <option value="other-beagle">Beagle Pup</option>
+            <option value="other">Other (manual entry)</option>
+          </select>
+          <div class="manual-entry" id="manualEntry">
+            <input type="text" class="form-input" id="manualType" placeholder="Enter aircraft type...">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="year">Year of Manufacture</label>
+          <input type="number" id="year" class="form-input" min="1960" max="2026" placeholder="e.g. 1978">
+        </div>
+        <div class="form-group">
+          <label for="registration">Registration</label>
+          <input type="text" id="registration" class="form-input" placeholder="e.g. G-ABCD" maxlength="7" style="text-transform: uppercase;">
+        </div>
+        <div class="form-group">
+          <label for="engineTBO">Engine TBO (hours)</label>
+          <input type="number" id="engineTBO" class="form-input" min="500" max="5000" value="2000" placeholder="2000">
+        </div>
+        <!-- Airframe Hours -->
+        <div class="form-group full-width">
+          <div class="slider-group">
+            <div class="slider-header">
+              <label for="airframeHours">Total Airframe Hours</label>
+              <span class="slider-value" id="airframeHoursVal">3,000 hrs</span>
+            </div>
+            <input type="range" id="airframeHours" min="0" max="15000" step="50" value="3000" class="slider">
+            <div class="slider-labels"><span>0 hrs</span><span>15,000 hrs</span></div>
+          </div>
+        </div>
+        <!-- Engine SMOH -->
+        <div class="form-group full-width">
+          <div class="slider-group">
+            <div class="slider-header">
+              <label for="engineSMOH">Engine Hours Since Overhaul</label>
+              <span class="slider-value" id="engineSMOHVal">800 hrs</span>
+            </div>
+            <input type="range" id="engineSMOH" min="0" max="3000" step="25" value="800" class="slider">
+            <div class="slider-labels"><span>0 hrs</span><span>3,000 hrs</span></div>
+          </div>
+        </div>
+        <!-- Propeller SMOH -->
+        <div class="form-group full-width">
+          <div class="slider-group">
+            <div class="slider-header">
+              <label for="propSMOH">Propeller Hours Since Overhaul</label>
+              <span class="slider-value" id="propSMOHVal">800 hrs</span>
+            </div>
+            <input type="range" id="propSMOH" min="0" max="3000" step="25" value="800" class="slider">
+            <div class="slider-labels"><span>0 hrs</span><span>3,000 hrs</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Condition Assessment -->
+    <section class="card" id="conditionSection">
+      <h2 class="section-label">Condition Scoring</h2>
+      <div class="scoring-grid" id="scoringGrid">
+        <!-- Populated by JS -->
+      </div>
+      <div class="condition-score-display">
+        <div class="score-number" id="totalScore">24/40</div>
+        <div class="score-bar-container">
+          <div class="score-bar-track">
+            <div class="score-bar-fill" id="scoreBar" style="width:60%;background:#3b82c4;"></div>
+          </div>
+          <div class="score-label-text" id="scoreLabel">Average</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Comparable Sales -->
+    <section class="card" id="compSection">
+      <h2 class="section-label">Comparable Sales Data</h2>
+      <div class="table-wrapper">
+        <div id="compTableContainer">
+          <p class="no-data-msg">Select an aircraft type above to view comparable sales data.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Valuation Calculation -->
+    <section class="card" id="valuationSection">
+      <h2 class="section-label">Estimated Market Valuation</h2>
+      <div id="valuationContent">
+        <p class="no-data-msg">Complete the aircraft details and condition scoring above to generate a valuation.</p>
+      </div>
+    </section>
+
+    <!-- Section 5: Market Position Chart -->
+    <section class="card no-print" id="chartSection">
+      <h2 class="section-label">Market Position</h2>
+      <div class="chart-container">
+        <canvas id="marketChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Section 6: Valuation Summary -->
+    <section class="card" id="summarySection" style="display:none;">
+      <div class="summary-card" id="summaryCard">
+        <div class="summary-header">
+          <div class="summary-logo">
+            <svg width="30" height="30" viewBox="0 0 36 36" fill="none" style="color:var(--color-primary)">
+              <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M18 6 L18 30" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M10 16 L18 10 L26 16" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <path d="M8 20 L28 20" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M14 24 L22 24" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <div>
+              <div class="summary-logo-title">Atlantic Aircraft</div>
+              <div class="summary-logo-sub">Valuation Report</div>
+            </div>
+          </div>
+          <div class="summary-date" id="summaryDate"></div>
+        </div>
+        <div class="summary-grid" id="summaryGrid">
+          <!-- Populated by JS -->
+        </div>
+        <div class="summary-valuation" id="summaryValuation">
+          <!-- Populated by JS -->
+        </div>
+        <div class="summary-footer">
+          <span>Prepared by Atlantic Aircraft — Independent Aircraft Valuation &amp; Brokerage</span>
+          <span>Newquay, Cornwall</span>
+        </div>
+      </div>
+      <div class="print-btn-container no-print">
+        <button class="btn btn-primary" onclick="window.print()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download as PDF
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer no-print">
+    <p class="footer-brand">Atlantic Aircraft — Independent Aircraft Valuation &amp; Brokerage</p>
+    <p class="footer-location">Newquay, Cornwall</p>
+    <p class="footer-disclaimer">All valuations are indicative and based on comparable market data available at the time of assessment. They do not constitute a formal appraisal. Final pricing should account for current market conditions, individual aircraft inspection, and any factors not captured within this model. Atlantic Aircraft accepts no liability for decisions made based on these estimates.</p>
+  </footer>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>
+// ========================================
+// Theme Toggle
+// ========================================
+(function() {
+  const t = document.querySelector('[data-theme-toggle]');
+  const r = document.documentElement;
+  let d = localStorage.getItem('aa-theme') || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+  r.setAttribute('data-theme', d);
+  updateToggleIcon(t, d);
+  t && t.addEventListener('click', () => {
+    d = d === 'dark' ? 'light' : 'dark';
+    r.setAttribute('data-theme', d);
+    localStorage.setItem('aa-theme', d);
+    t.setAttribute('aria-label', 'Switch to ' + (d === 'dark' ? 'light' : 'dark') + ' mode');
+    updateToggleIcon(t, d);
+    if (marketChart) updateChart();
+  });
+})();
+
+function updateToggleIcon(btn, theme) {
+  if (!btn) return;
+  btn.innerHTML = theme === 'dark'
+    ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+    : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+}
+
+// ========================================
+// Condition Scoring Configuration
+// ========================================
+const conditionFactors = [
+  {
+    id: 'airframe',
+    label: 'Airframe Condition',
+    descriptions: ['Poor / Corrosion', 'Fair', 'Average', 'Good', 'Excellent / Like New']
+  },
+  {
+    id: 'engine',
+    label: 'Engine Condition',
+    descriptions: ['At / Past TBO', 'High Time', 'Mid-Life', 'Low Time', 'Recently Overhauled']
+  },
+  {
+    id: 'avionics',
+    label: 'Avionics Fit',
+    descriptions: ['Basic / Steam Gauges Only', 'Basic with GPS', 'Partial Glass (e.g. Garmin G5)', 'Full Glass Panel', 'Full Glass + ADS-B + IFR Certified']
+  },
+  {
+    id: 'paint',
+    label: 'Paint Condition',
+    descriptions: ['Poor / Faded', 'Fair', 'Acceptable', 'Good', 'Recent Respray']
+  },
+  {
+    id: 'interior',
+    label: 'Interior Condition',
+    descriptions: ['Worn / Damaged', 'Fair', 'Acceptable', 'Good', 'Refurbished / Like New']
+  },
+  {
+    id: 'logbooks',
+    label: 'Logbook Completeness',
+    descriptions: ['Incomplete / Missing', 'Gaps Present', 'Mostly Complete', 'Complete', 'Complete + Full History']
+  },
+  {
+    id: 'damage',
+    label: 'Damage History',
+    descriptions: ['Major Incident', 'Minor Incident', 'Minor Repairs Only', 'No Damage', 'No Damage + Clean Record']
+  },
+  {
+    id: 'mods',
+    label: 'Modifications / STCs',
+    descriptions: ['Unapproved Mods', 'None', 'Minor Approved', 'Valuable STCs', 'Premium Upgrades (160HP STC, etc.)']
+  }
+];
+
+const scores = {};
+conditionFactors.forEach(f => scores[f.id] = 3); // default to 3
+
+// ========================================
+// Comparable Sales Data
+// ========================================
+const comparableData = {
+  'pa28-140': [
+    { aircraft: 'PA-28-140', year: 1973, hours: 6200, smoh: 850, avionics: 'Basic + GPS', condition: 'Good', price: 38000, date: 'Nov 2025', notes: 'Standard spec, well maintained' },
+    { aircraft: 'PA-28-140', year: 1969, hours: 8100, smoh: 200, avionics: 'Steam gauges', condition: 'Fair', price: 28500, date: 'Sep 2025', notes: 'High time, recent engine overhaul' },
+    { aircraft: 'PA-28-140', year: 1971, hours: 5400, smoh: 1600, avionics: 'Garmin G5 + GPS', condition: 'Above Average', price: 52000, date: 'Jan 2026', notes: '160HP STC, refurbished interior' },
+    { aircraft: 'PA-28-140', year: 1974, hours: 7800, smoh: 400, avionics: 'Basic GPS', condition: 'Average', price: 34000, date: 'Aug 2025', notes: 'Club aircraft, honest condition' },
+    { aircraft: 'PA-28-140', year: 1970, hours: 9200, smoh: 1900, avionics: 'Minimal', condition: 'Below Average', price: 25000, date: 'Oct 2025', notes: 'Approaching engine TBO' }
+  ],
+  'pa28-161': [
+    { aircraft: 'PA-28-161', year: 1982, hours: 5800, smoh: 600, avionics: 'Garmin 430W + G5', condition: 'Good', price: 68000, date: 'Dec 2025', notes: 'Well-equipped trainer' },
+    { aircraft: 'PA-28-161', year: 1978, hours: 7200, smoh: 1200, avionics: 'Basic + KLN94', condition: 'Average', price: 52000, date: 'Oct 2025', notes: 'Ex-school, good logs' },
+    { aircraft: 'PA-28-161', year: 1985, hours: 4100, smoh: 300, avionics: 'Full Glass (G500)', condition: 'Excellent', price: 88000, date: 'Feb 2026', notes: 'Fully refurbished, low time' },
+    { aircraft: 'PA-28-161', year: 1980, hours: 6500, smoh: 1800, avionics: 'Basic GPS', condition: 'Fair', price: 45000, date: 'Jul 2025', notes: 'Needs paint, approaching TBO' },
+    { aircraft: 'PA-28-161', year: 1983, hours: 5200, smoh: 900, avionics: 'GTN 650', condition: 'Good', price: 72000, date: 'Nov 2025', notes: 'Owner maintained, IFR equipped' }
+  ],
+  'pa28-180': [
+    { aircraft: 'PA-28-180', year: 1975, hours: 5900, smoh: 700, avionics: 'Garmin G5 + GPS', condition: 'Good', price: 58000, date: 'Jan 2026', notes: 'Popular touring spec' },
+    { aircraft: 'PA-28-180', year: 1968, hours: 8400, smoh: 1500, avionics: 'Basic', condition: 'Fair', price: 35000, date: 'Aug 2025', notes: 'Early model, needs work' },
+    { aircraft: 'PA-28-180', year: 1973, hours: 6200, smoh: 400, avionics: 'GTN 650', condition: 'Above Average', price: 65000, date: 'Nov 2025', notes: 'Recently overhauled engine' },
+    { aircraft: 'PA-28-180', year: 1977, hours: 4800, smoh: 1100, avionics: 'KLN94 + transponder', condition: 'Average', price: 48000, date: 'Sep 2025', notes: 'Solid touring aircraft' },
+    { aircraft: 'PA-28-180', year: 1971, hours: 7600, smoh: 200, avionics: 'Full panel upgrade', condition: 'Excellent', price: 72000, date: 'Mar 2026', notes: 'Comprehensive rebuild' }
+  ],
+  'pa28-181': [
+    { aircraft: 'PA-28-181', year: 1984, hours: 4200, smoh: 500, avionics: 'GTN 750 + G5s', condition: 'Excellent', price: 95000, date: 'Feb 2026', notes: 'Premium spec' },
+    { aircraft: 'PA-28-181', year: 1980, hours: 6800, smoh: 1400, avionics: 'Garmin 430', condition: 'Average', price: 62000, date: 'Oct 2025', notes: 'Standard touring spec' },
+    { aircraft: 'PA-28-181', year: 1986, hours: 3800, smoh: 800, avionics: 'Full Glass', condition: 'Good', price: 85000, date: 'Dec 2025', notes: 'Low time, well maintained' },
+    { aircraft: 'PA-28-181', year: 1982, hours: 5500, smoh: 1800, avionics: 'Basic GPS', condition: 'Fair', price: 55000, date: 'Jul 2025', notes: 'Approaching TBO' },
+    { aircraft: 'PA-28-181', year: 1988, hours: 4600, smoh: 200, avionics: 'GNS 530W + G5', condition: 'Above Average', price: 92000, date: 'Jan 2026', notes: 'Recent engine, IFR certified' }
+  ],
+  'c150': [
+    { aircraft: 'Cessna 152', year: 1979, hours: 8500, smoh: 900, avionics: 'Basic + GPS', condition: 'Average', price: 32000, date: 'Nov 2025', notes: 'Standard trainer' },
+    { aircraft: 'Cessna 150M', year: 1975, hours: 10200, smoh: 300, avionics: 'Steam gauges', condition: 'Fair', price: 24000, date: 'Aug 2025', notes: 'High time but recent engine' },
+    { aircraft: 'Cessna 152', year: 1982, hours: 6800, smoh: 600, avionics: 'Garmin G5', condition: 'Good', price: 42000, date: 'Jan 2026', notes: 'Well-equipped training aircraft' },
+    { aircraft: 'Cessna 150L', year: 1972, hours: 7400, smoh: 1600, avionics: 'Basic', condition: 'Below Average', price: 18000, date: 'Sep 2025', notes: 'Needs engine work soon' },
+    { aircraft: 'Cessna 152', year: 1981, hours: 5900, smoh: 400, avionics: 'GTN 650Xi', condition: 'Above Average', price: 48000, date: 'Feb 2026', notes: 'Premium trainer, low time' }
+  ],
+  'c172': [
+    { aircraft: 'Cessna 172N', year: 1979, hours: 7200, smoh: 800, avionics: 'Garmin 430W', condition: 'Good', price: 72000, date: 'Dec 2025', notes: 'Popular touring spec' },
+    { aircraft: 'Cessna 172P', year: 1981, hours: 5800, smoh: 1200, avionics: 'Basic GPS', condition: 'Average', price: 65000, date: 'Oct 2025', notes: 'Solid family aircraft' },
+    { aircraft: 'Cessna 172N', year: 1978, hours: 9500, smoh: 200, avionics: 'Full Glass (G500)', condition: 'Excellent', price: 95000, date: 'Feb 2026', notes: 'Comprehensive refurb' },
+    { aircraft: 'Cessna 172M', year: 1976, hours: 8100, smoh: 1800, avionics: 'KLN94', condition: 'Fair', price: 48000, date: 'Jul 2025', notes: 'Approaching TBO' },
+    { aircraft: 'Cessna 172P', year: 1982, hours: 6400, smoh: 500, avionics: 'GTN 750 + G5', condition: 'Above Average', price: 88000, date: 'Jan 2026', notes: 'IFR certified, new paint' }
+  ],
+  'c182': [
+    { aircraft: 'Cessna 182P', year: 1974, hours: 6800, smoh: 700, avionics: 'Garmin 430W', condition: 'Good', price: 85000, date: 'Nov 2025', notes: 'Classic tourer' },
+    { aircraft: 'Cessna 182Q', year: 1978, hours: 5200, smoh: 400, avionics: 'GTN 750 + G5s', condition: 'Excellent', price: 120000, date: 'Feb 2026', notes: 'Premium rebuild' },
+    { aircraft: 'Cessna 182R', year: 1982, hours: 4800, smoh: 1100, avionics: 'GNS 530', condition: 'Average', price: 78000, date: 'Sep 2025', notes: 'Standard spec' },
+    { aircraft: 'Cessna 182P', year: 1973, hours: 8500, smoh: 1800, avionics: 'Basic', condition: 'Fair', price: 55000, date: 'Aug 2025', notes: 'Needs work' },
+    { aircraft: 'Cessna 182Q', year: 1977, hours: 5900, smoh: 300, avionics: 'Full Glass', condition: 'Above Average', price: 110000, date: 'Jan 2026', notes: 'Recent engine, modern panel' }
+  ],
+  'da40': [
+    { aircraft: 'DA40 Star', year: 2003, hours: 2800, smoh: 1200, avionics: 'Garmin G1000', condition: 'Good', price: 135000, date: 'Dec 2025', notes: 'Standard factory spec' },
+    { aircraft: 'DA40 Star', year: 2006, hours: 1900, smoh: 800, avionics: 'G1000 NXi upgrade', condition: 'Excellent', price: 165000, date: 'Feb 2026', notes: 'Low time, premium' },
+    { aircraft: 'DA40 Star', year: 2001, hours: 3500, smoh: 1600, avionics: 'G1000', condition: 'Average', price: 115000, date: 'Sep 2025', notes: 'Higher time' },
+    { aircraft: 'DA40 Star', year: 2008, hours: 2200, smoh: 600, avionics: 'G1000 + GFC 700', condition: 'Above Average', price: 155000, date: 'Jan 2026', notes: 'Autopilot equipped' },
+    { aircraft: 'DA40 Star', year: 2004, hours: 3100, smoh: 1400, avionics: 'G1000', condition: 'Fair', price: 120000, date: 'Oct 2025', notes: 'Needs paint' }
+  ]
+};
+
+// ========================================
+// DOM References
+// ========================================
+const els = {
+  aircraftType: document.getElementById('aircraftType'),
+  manualEntry: document.getElementById('manualEntry'),
+  manualType: document.getElementById('manualType'),
+  year: document.getElementById('year'),
+  registration: document.getElementById('registration'),
+  engineTBO: document.getElementById('engineTBO'),
+  airframeHours: document.getElementById('airframeHours'),
+  airframeHoursVal: document.getElementById('airframeHoursVal'),
+  engineSMOH: document.getElementById('engineSMOH'),
+  engineSMOHVal: document.getElementById('engineSMOHVal'),
+  propSMOH: document.getElementById('propSMOH'),
+  propSMOHVal: document.getElementById('propSMOHVal'),
+  scoringGrid: document.getElementById('scoringGrid'),
+  totalScore: document.getElementById('totalScore'),
+  scoreBar: document.getElementById('scoreBar'),
+  scoreLabel: document.getElementById('scoreLabel'),
+  compTableContainer: document.getElementById('compTableContainer'),
+  valuationContent: document.getElementById('valuationContent'),
+  chartSection: document.getElementById('chartSection'),
+  summarySection: document.getElementById('summarySection'),
+  summaryGrid: document.getElementById('summaryGrid'),
+  summaryValuation: document.getElementById('summaryValuation'),
+  summaryDate: document.getElementById('summaryDate'),
+  marketChart: document.getElementById('marketChart')
+};
+
+let marketChart = null;
+
+// ========================================
+// Render Condition Scoring
+// ========================================
+function renderScoring() {
+  els.scoringGrid.innerHTML = conditionFactors.map(f => `
+    <div class="scoring-row">
+      <div>
+        <div class="scoring-label">${f.label}</div>
+        <div class="scoring-desc" id="desc-${f.id}">${f.descriptions[scores[f.id] - 1]}</div>
+      </div>
+      <div class="star-rating" data-factor="${f.id}">
+        ${[1,2,3,4,5].map(n => `
+          <button class="star-btn ${n <= scores[f.id] ? 'active' : ''}" data-value="${n}" data-factor="${f.id}" aria-label="${f.label}: ${n} star${n > 1 ? 's' : ''}">
+            <svg viewBox="0 0 24 24" fill="${n <= scores[f.id] ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  // Attach click events
+  els.scoringGrid.querySelectorAll('.star-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const factor = btn.dataset.factor;
+      const value = parseInt(btn.dataset.value);
+      scores[factor] = value;
+      // Update stars
+      const row = btn.closest('.star-rating');
+      row.querySelectorAll('.star-btn').forEach(b => {
+        const v = parseInt(b.dataset.value);
+        b.classList.toggle('active', v <= value);
+        b.querySelector('svg').setAttribute('fill', v <= value ? 'currentColor' : 'none');
+      });
+      // Update description
+      const factorObj = conditionFactors.find(f => f.id === factor);
+      document.getElementById(`desc-${factor}`).textContent = factorObj.descriptions[value - 1];
+      updateAll();
+    });
+  });
+}
+
+// ========================================
+// Utility Functions
+// ========================================
+function fmt(n) {
+  return '£' + Math.round(n).toLocaleString('en-GB');
+}
+
+function fmtNum(n) {
+  return Math.round(n).toLocaleString('en-GB');
+}
+
+function getTotalScore() {
+  return Object.values(scores).reduce((a, b) => a + b, 0);
+}
+
+function getScoreLabel(score) {
+  if (score >= 35) return 'Excellent';
+  if (score >= 28) return 'Above Average';
+  if (score >= 21) return 'Average';
+  if (score >= 14) return 'Below Average';
+  return 'Poor';
+}
+
+function getScoreColor(score) {
+  if (score >= 35) return '#16a34a';
+  if (score >= 28) return '#3b82c4';
+  if (score >= 21) return '#d97706';
+  if (score >= 14) return '#dc7b26';
+  return '#dc2626';
+}
+
+function getMedian(arr) {
+  const sorted = [...arr].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+function getAircraftDisplayName() {
+  const type = els.aircraftType.value;
+  if (type === 'other') return els.manualType.value || 'Other';
+  const option = els.aircraftType.querySelector(`option[value="${type}"]`);
+  return option ? option.textContent : '';
+}
+
+function isOtherType(type) {
+  return type.startsWith('other') || type === '';
+}
+
+// ========================================
+// Update Slider Displays
+// ========================================
+function updateSliderDisplays() {
+  els.airframeHoursVal.textContent = fmtNum(parseInt(els.airframeHours.value)) + ' hrs';
+  els.engineSMOHVal.textContent = fmtNum(parseInt(els.engineSMOH.value)) + ' hrs';
+  els.propSMOHVal.textContent = fmtNum(parseInt(els.propSMOH.value)) + ' hrs';
+}
+
+// ========================================
+// Update Comparable Sales Table
+// ========================================
+function updateCompTable() {
+  const type = els.aircraftType.value;
+  if (!type || isOtherType(type)) {
+    if (type && type !== '' && isOtherType(type)) {
+      els.compTableContainer.innerHTML = '<p class="no-data-msg">Comparable sales data will be populated by your Atlantic Aircraft broker based on the specific aircraft type.</p>';
+    } else {
+      els.compTableContainer.innerHTML = '<p class="no-data-msg">Select an aircraft type above to view comparable sales data.</p>';
+    }
+    return;
+  }
+
+  const data = comparableData[type];
+  if (!data) {
+    els.compTableContainer.innerHTML = '<p class="no-data-msg">No comparable data available for this aircraft type.</p>';
+    return;
+  }
+
+  els.compTableContainer.innerHTML = `
+    <table class="comp-table">
+      <thead>
+        <tr>
+          <th>Aircraft</th>
+          <th>Year</th>
+          <th>Airframe Hrs</th>
+          <th>Engine SMOH</th>
+          <th>Avionics</th>
+          <th>Condition</th>
+          <th>Sold Price</th>
+          <th>Date</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.map(row => `
+          <tr>
+            <td>${row.aircraft}</td>
+            <td>${row.year}</td>
+            <td>${fmtNum(row.hours)}</td>
+            <td>${fmtNum(row.smoh)}</td>
+            <td>${row.avionics}</td>
+            <td>${row.condition}</td>
+            <td class="price-col">${fmt(row.price)}</td>
+            <td>${row.date}</td>
+            <td class="notes-col">${row.notes}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// ========================================
+// Calculate Valuation
+// ========================================
+function calculateValuation() {
+  const type = els.aircraftType.value;
+  if (!type || isOtherType(type)) return null;
+
+  const data = comparableData[type];
+  if (!data) return null;
+
+  const prices = data.map(d => d.price);
+  const baseValue = getMedian(prices);
+
+  const totalScore = getTotalScore();
+  const engineSMOH = parseInt(els.engineSMOH.value) || 0;
+  const engineTBO = parseInt(els.engineTBO.value) || 2000;
+  const airframeHours = parseInt(els.airframeHours.value) || 0;
+
+  // Condition adjustment
+  let conditionAdj = 0;
+  if (totalScore >= 35) conditionAdj = baseValue * 0.125;       // +12.5% avg
+  else if (totalScore >= 28) conditionAdj = baseValue * 0.055;  // +5.5% avg
+  else if (totalScore >= 21) conditionAdj = 0;                  // 0%
+  else if (totalScore >= 14) conditionAdj = baseValue * -0.085; // -8.5% avg
+  else conditionAdj = baseValue * -0.20;                         // -20% avg
+
+  // Engine time adjustment
+  const engineRemaining = engineTBO - engineSMOH;
+  const enginePct = engineRemaining / engineTBO;
+  let engineAdj = 0;
+  if (engineSMOH > engineTBO) engineAdj = baseValue * -0.15;     // Past TBO
+  else if (enginePct > 0.75) engineAdj = baseValue * 0.05;       // >75% remaining
+  else if (enginePct > 0.50) engineAdj = baseValue * 0.02;       // 50-75%
+  else if (enginePct > 0.25) engineAdj = baseValue * -0.03;      // 25-50%
+  else engineAdj = baseValue * -0.08;                              // <25%
+
+  // Airframe hours adjustment
+  const avgHours = data.reduce((sum, d) => sum + d.hours, 0) / data.length;
+  let airframeAdj = 0;
+  if (airframeHours < avgHours * 0.75) airframeAdj = baseValue * 0.03;
+  else if (airframeHours > avgHours * 1.25) airframeAdj = baseValue * -0.03;
+
+  const estimatedValue = baseValue + conditionAdj + engineAdj + airframeAdj;
+  const lowerBound = estimatedValue * 0.95;
+  const upperBound = estimatedValue * 1.05;
+  const askingPrice = upperBound;
+
+  return {
+    baseValue,
+    conditionAdj,
+    engineAdj,
+    airframeAdj,
+    estimatedValue,
+    lowerBound,
+    upperBound,
+    askingPrice,
+    prices,
+    totalScore
+  };
+}
+
+// ========================================
+// Update Valuation Display
+// ========================================
+function updateValuation() {
+  const val = calculateValuation();
+  if (!val) {
+    els.valuationContent.innerHTML = '<p class="no-data-msg">Complete the aircraft details and condition scoring above to generate a valuation.</p>';
+    els.summarySection.style.display = 'none';
+    els.chartSection.style.display = 'none';
+    return;
+  }
+
+  const condClass = val.conditionAdj >= 0 ? 'positive' : 'negative';
+  const engineClass = val.engineAdj >= 0 ? 'positive' : 'negative';
+  const airframeClass = val.airframeAdj >= 0 ? 'positive' : 'negative';
+  const condSign = val.conditionAdj >= 0 ? '+' : '';
+  const engineSign = val.engineAdj >= 0 ? '+' : '';
+  const airframeSign = val.airframeAdj >= 0 ? '+' : '';
+
+  // Build valuation breakdown
+  els.valuationContent.innerHTML = `
+    <div>
+      <div class="val-line">
+        <span class="val-line-label">Base Market Value (comparables median)</span>
+        <span class="val-line-value">${fmt(val.baseValue)}</span>
+      </div>
+      <div class="val-line">
+        <span class="val-line-label">Condition Adjustment (score: ${val.totalScore}/40)</span>
+        <span class="val-line-value ${condClass}">${condSign}${fmt(val.conditionAdj)}</span>
+      </div>
+      <div class="val-line">
+        <span class="val-line-label">Engine Time Adjustment</span>
+        <span class="val-line-value ${engineClass}">${engineSign}${fmt(val.engineAdj)}</span>
+      </div>
+      <div class="val-line">
+        <span class="val-line-label">Airframe Hours Adjustment</span>
+        <span class="val-line-value ${airframeClass}">${airframeSign}${fmt(val.airframeAdj)}</span>
+      </div>
+    </div>
+
+    <div class="val-range-display">
+      <div class="val-range-title">Estimated Value Range</div>
+      <div class="val-range-value">${fmt(val.lowerBound)} — ${fmt(val.upperBound)}</div>
+      <div class="val-asking-price">
+        <div class="val-asking-label">Recommended Asking Price</div>
+        <div class="val-asking-value">${fmt(val.askingPrice)}</div>
+      </div>
+    </div>
+
+    <p class="val-note">This valuation is indicative and based on comparable market data. Final pricing should account for current market conditions and any factors not captured above.</p>
+
+    <!-- Market Position Gauge -->
+    <div class="gauge-container">
+      <h3 class="section-label" style="margin-top:var(--space-6)">Market Position</h3>
+      ${buildGauge(val)}
+    </div>
+  `;
+
+  // Update chart
+  els.chartSection.style.display = '';
+  updateChart();
+
+  // Update summary
+  updateSummary(val);
+}
+
+// ========================================
+// Build Market Position Gauge
+// ========================================
+function buildGauge(val) {
+  const allPrices = [...val.prices, val.estimatedValue];
+  const min = Math.min(...allPrices) * 0.9;
+  const max = Math.max(...allPrices) * 1.1;
+  const range = max - min;
+
+  const pctEst = ((val.estimatedValue - min) / range) * 100;
+  const compDots = val.prices.map(p => {
+    const pct = ((p - min) / range) * 100;
+    return `<div class="gauge-comp-dot" style="left:${pct}%" title="${fmt(p)}"></div>`;
+  }).join('');
+
+  return `
+    <div class="gauge-track">
+      ${compDots}
+      <div class="gauge-marker" style="left:${pctEst}%" title="Subject: ${fmt(val.estimatedValue)}"></div>
+    </div>
+    <div class="gauge-labels">
+      <span>${fmt(Math.min(...val.prices))}</span>
+      <span style="font-weight:600;color:var(--color-primary)">Subject: ${fmt(val.estimatedValue)}</span>
+      <span>${fmt(Math.max(...val.prices))}</span>
+    </div>
+  `;
+}
+
+// ========================================
+// Update Chart
+// ========================================
+function updateChart() {
+  const val = calculateValuation();
+  if (!val) return;
+
+  const type = els.aircraftType.value;
+  const data = comparableData[type];
+  if (!data) return;
+
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const textColor = isDark ? '#e2e5eb' : '#1a1f2e';
+  const mutedColor = isDark ? '#8b93a5' : '#6b7280';
+  const gridColor = isDark ? '#2d3548' : '#e8ebf0';
+  const primaryColor = isDark ? '#6ba3d6' : '#1e3a5f';
+  const accentColor = isDark ? '#3b82c4' : '#3b82c4';
+
+  // Build labels and data
+  const compLabels = data.map(d => `${d.aircraft} (${d.year})`);
+  const compPrices = data.map(d => d.price);
+  const reg = (els.registration.value || 'Subject').toUpperCase();
+
+  const labels = [...compLabels, reg];
+  const values = [...compPrices, val.estimatedValue];
+  const bgColors = [...compPrices.map(() => accentColor + '66'), primaryColor];
+  const borderColors = [...compPrices.map(() => accentColor), primaryColor];
+
+  if (marketChart) {
+    marketChart.destroy();
+  }
+
+  const ctx = els.marketChart.getContext('2d');
+  marketChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: 2,
+        borderRadius: 4,
+        barPercentage: 0.7
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: isDark ? '#1a1f2e' : '#ffffff',
+          titleColor: textColor,
+          bodyColor: textColor,
+          borderColor: gridColor,
+          borderWidth: 1,
+          padding: 12,
+          cornerRadius: 8,
+          displayColors: false,
+          callbacks: {
+            label: ctx => fmt(ctx.raw)
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: gridColor },
+          ticks: {
+            color: mutedColor,
+            font: { family: "'General Sans', sans-serif", size: 12 },
+            callback: v => '£' + (v / 1000) + 'k'
+          }
+        },
+        y: {
+          grid: { display: false },
+          ticks: {
+            color: textColor,
+            font: {
+              family: "'General Sans', sans-serif",
+              size: 12,
+              weight: (ctx) => ctx.index === labels.length - 1 ? 'bold' : 'normal'
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ========================================
+// Update Summary
+// ========================================
+function updateSummary(val) {
+  const type = getAircraftDisplayName();
+  const reg = (els.registration.value || '—').toUpperCase();
+  const year = els.year.value || '—';
+  const airframeHours = fmtNum(parseInt(els.airframeHours.value) || 0);
+  const engineSMOH = fmtNum(parseInt(els.engineSMOH.value) || 0);
+  const totalScore = getTotalScore();
+  const scoreLabel = getScoreLabel(totalScore);
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  els.summarySection.style.display = '';
+
+  els.summaryDate.innerHTML = `<div style="font-weight:600">Date of Valuation</div><div>${dateStr}</div>`;
+
+  els.summaryGrid.innerHTML = `
+    <div class="summary-field">
+      <div class="summary-field-label">Aircraft</div>
+      <div class="summary-field-value">${type}</div>
+    </div>
+    <div class="summary-field">
+      <div class="summary-field-label">Registration</div>
+      <div class="summary-field-value">${reg}</div>
+    </div>
+    <div class="summary-field">
+      <div class="summary-field-label">Year of Manufacture</div>
+      <div class="summary-field-value">${year}</div>
+    </div>
+    <div class="summary-field">
+      <div class="summary-field-label">Total Airframe Hours</div>
+      <div class="summary-field-value">${airframeHours} hrs</div>
+    </div>
+    <div class="summary-field">
+      <div class="summary-field-label">Engine Hours SMOH</div>
+      <div class="summary-field-value">${engineSMOH} hrs</div>
+    </div>
+    <div class="summary-field">
+      <div class="summary-field-label">Condition Score</div>
+      <div class="summary-field-value">${totalScore}/40 (${scoreLabel})</div>
+    </div>
+  `;
+
+  els.summaryValuation.innerHTML = `
+    <div class="summary-val-item">
+      <div class="summary-val-label">Comparable Sales Range</div>
+      <div class="summary-val-value">${fmt(Math.min(...val.prices))} — ${fmt(Math.max(...val.prices))}</div>
+    </div>
+    <div class="summary-val-item">
+      <div class="summary-val-label">Estimated Market Value</div>
+      <div class="summary-val-value">${fmt(val.lowerBound)} — ${fmt(val.upperBound)}</div>
+    </div>
+    <div class="summary-val-item">
+      <div class="summary-val-label">Recommended Asking Price</div>
+      <div class="summary-val-value highlight">${fmt(val.askingPrice)}</div>
+    </div>
+  `;
+}
+
+// ========================================
+// Update Condition Score Display
+// ========================================
+function updateConditionScore() {
+  const total = getTotalScore();
+  const label = getScoreLabel(total);
+  const color = getScoreColor(total);
+  const pct = (total / 40) * 100;
+
+  els.totalScore.textContent = `${total}/40`;
+  els.scoreBar.style.width = pct + '%';
+  els.scoreBar.style.background = color;
+  els.scoreLabel.textContent = label;
+}
+
+// ========================================
+// Master Update
+// ========================================
+function updateAll() {
+  updateSliderDisplays();
+  updateConditionScore();
+  updateCompTable();
+  updateValuation();
+}
+
+// ========================================
+// Event Listeners
+// ========================================
+els.aircraftType.addEventListener('change', () => {
+  const isOther = els.aircraftType.value === 'other';
+  els.manualEntry.classList.toggle('visible', isOther);
+  updateAll();
+});
+
+els.manualType.addEventListener('input', updateAll);
+
+[els.airframeHours, els.engineSMOH, els.propSMOH].forEach(slider => {
+  slider.addEventListener('input', updateAll);
+});
+
+[els.year, els.registration, els.engineTBO].forEach(input => {
+  input.addEventListener('input', updateAll);
+});
+
+// Registration auto uppercase
+els.registration.addEventListener('input', () => {
+  els.registration.value = els.registration.value.toUpperCase();
+});
+
+// ========================================
+// Initialize
+// ========================================
+renderScoring();
+updateAll();
+  </script>
+</body>
+</html>
