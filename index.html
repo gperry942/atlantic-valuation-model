@@ -1235,13 +1235,13 @@ a, button, input, select {
 (function() {
   const t = document.querySelector('[data-theme-toggle]');
   const r = document.documentElement;
-  let d = localStorage.getItem('aa-theme') || (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+  let d = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
   r.setAttribute('data-theme', d);
   updateToggleIcon(t, d);
   t && t.addEventListener('click', () => {
     d = d === 'dark' ? 'light' : 'dark';
     r.setAttribute('data-theme', d);
-    localStorage.setItem('aa-theme', d);
+    // theme stored in memory only
     t.setAttribute('aria-label', 'Switch to ' + (d === 'dark' ? 'light' : 'dark') + ' mode');
     updateToggleIcon(t, d);
     if (marketChart) updateChart();
